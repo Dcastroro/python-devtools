@@ -24,6 +24,22 @@ def test_recursive_list(cutoff: int):
     assert PrettyFormat(simple_cutoff=cutoff)(value) == '[\n    1,\n    2,\n    <Recursion on list>,\n]'
 
 
+@pytest.mark.parametrize('cutoff', [0, 10])
+def test_short_recursive_list(cutoff: int):
+    value: list[Any] = []
+    value.append(value)
+    expected = '[\n    <Recursion on list>,\n]' if cutoff == 0 else '[[...]]'
+    assert PrettyFormat(simple_cutoff=cutoff)(value) == expected
+
+
+@pytest.mark.parametrize('cutoff', [0, 100])
+def test_compact_recursive_dict(cutoff: int):
+    value: dict[str, Any] = {}
+    value['self'] = value
+    expected = "{\n    'self': <Recursion on dict>,\n}" if cutoff == 0 else "{'self': {...}}"
+    assert PrettyFormat(simple_cutoff=cutoff)(value) == expected
+
+
 def test_mutually_recursive_containers():
     value: dict[str, Any] = {}
     value['child'] = [value, 1]
